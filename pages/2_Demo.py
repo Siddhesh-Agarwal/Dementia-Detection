@@ -3,7 +3,7 @@ import tensorflow as tf
 import PIL
 
 
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_model():
     model = tf.keras.models.load_model("./model/model.h5")
     return model
@@ -17,7 +17,7 @@ st.set_page_config(
 )
 
 st.title("Alzheimer's Disease Detection")
-st.write("This is a demo of the Alzheimer's Disease Detection app.")
+st.subheader("This is a demo of the Alzheimer's Disease Detection app.")
 
 pic = st.file_uploader(
     label="Upload an image",
@@ -55,9 +55,8 @@ if st.button("Predict"):
                 score = tf.round(score * 100)
 
                 prediction = tf.argmax(prediction, axis=1)
-                prediction = prediction.numpy()[0]
+                prediction: int = prediction.numpy()[0]
 
                 result = labels[prediction]
 
-                st.write(f"**Prediction**: `{result}`")
-                st.write(f"**Confidence**: `{score:.2f}%`")
+                st.metric(label="Prediction", value=result, delta=f"{score:.2f}%")  # type: ignore

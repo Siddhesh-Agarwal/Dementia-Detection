@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "dementia-detection"
+version = "0.1.0"
+description = "A streamlit app to detect Dementia"
+authors = ["Siddhesh Agarwal <siddhesh.agarwal@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11"
+streamlit = "^1.34.0"
+streamlit-lottie = "^0.0.5"
+tensorflow-io-gcs-filesystem = "0.27.0"
+tensorflow = "2.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

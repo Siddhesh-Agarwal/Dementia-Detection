@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import pydeck as pdk
+from pydeck import Deck, Layer, ViewState
 import requests
 
 st.set_page_config(
@@ -12,12 +12,14 @@ st.set_page_config(
 
 
 # Create a function to search for nearby doctors based on city name
-def search_doctors(city):
+@st.cache_data
+def search_doctors(city: str):
     # Google Maps API key
     api_key = st.secrets["API_KEY"]
     url = f"https://maps.googleapis.com/maps/api/place/textsearch/json?query=doctors+specializing+in+Alzheimer+in+{city}&key={api_key}"
-    results = requests.get(url).json()
+    results = requests.get(url, timeout=10).json()
     return results["results"]
+
 
 st.title("Find a doctor near you")
 
@@ -29,23 +31,23 @@ if city:
     doctors = search_doctors(city)
 
     # Display the results to the user
-    st.write("Results for Alzheimer doctors in: ", city)
+    st.markdown(f"Results for Alzheimer doctors in: {city}")
     lat_long = [
         (doc["geometry"]["location"]["lat"], doc["geometry"]["location"]["lng"])
         for doc in doctors
     ]
     df = pd.DataFrame(lat_long, columns=["latitude", "longitude"])
     st.pydeck_chart(
-        pdk.Deck(
+        Deck(
             map_style="mapbox://styles/mapbox/streets-v12",
-            initial_view_state=pdk.ViewState(
-                latitude=df["latitude"].mean(),
-                longitude=df["longitude"].mean(),
+            initial_view_state=ViewState(
+                latitude=df["latitude"].mean(skipna=True),
+                longitude=df["longitude"].mean(skipna=True),
                 zoom=11,
                 pitch=50,
             ),
             layers=[
-                pdk.Layer(
+                Layer(
                     "ScatterplotLayer",
                     data=df,
                     get_position=["longitude", "latitude"],
@@ -58,6 +60,6 @@ if city:
         )
     )
 
-    for i, doctor in enumerate(doctors):
-        st.write(f"{i+1}. **Name**: ", doctor["name"])
-        st.write("> **Address**: ", doctor["formatted_address"])
+    for i, doctor in enumerate(doctors, start=1):
+        st.markdown(f"{i}. **Name**: {doctor['name']}")
+        st.markdown("> **Address**: {doctor['formatted_address']}")
