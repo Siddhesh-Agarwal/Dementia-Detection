@@ -1,8 +1,4 @@
-[browser]
-gatherUsageStats = false
-
 [server]
-runOnSave = true
 maxUploadSize = 50
 maxMessageSize = 50
 
